@@ -68,9 +68,9 @@ BR2_LINUX_KERNEL_LZ4=y
 # hardware template's infrastructure, Mesa Panfrost + SDL2, LÖVE 11.5
 # (package/kodacy/love) and the launcher (package/kodacy/kodacy-launcher).
 BR2_PACKAGE_KODACY_SYSTEM=y
-# Panfrost needs MESA3D_LLVM in this buildroot, which switches OpenCL on by
-# default; LÖVE does not use OpenCL and libclc is a long build.
-BR2_PACKAGE_MESA3D_OPENCL=n
+# Note: the Panfrost driver in this buildroot needs MESA3D_LLVM and
+# MESA3D_NEEDS_PRECOMP_COMPILER, which force clang, libclc and OpenCL in;
+# LÖVE does not use OpenCL, but it cannot be switched off (hardware template).
 
 # Disable generating rootfs tar (speedup)
 BR2_TARGET_ROOTFS_TAR=n
