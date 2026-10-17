@@ -1,0 +1,48 @@
+#!/bin/sh
+# KodacyOS copy of board/batocera/fsoverlay/etc/init.d/S35securepasswd.
+# /etc/shadow is generated at every boot. Stock writes "linux" unless
+# system.security.enabled=1; here, when the image was built with
+# KODACY_ROOT_PASSWD set (board/kodacy/scripts/post-build.sh stores only its
+# hash in /usr/share/kodacy/root.shadow), that hash is used instead of "linux".
+# system.security.enabled=1 still means the batocera-config master password.
+
+if test "$1" != "start"
+then
+  exit 0
+fi
+
+printf "Starting securepasswd: "
+
+MASTERPASSWD=$(batocera-config getRootPassword)
+if test -z "${MASTERPASSWD}"
+then
+    batocera-config setRootPassword
+    MASTERPASSWD=$(batocera-config getRootPassword)
+fi
+
+enabled="$(/usr/bin/batocera-settings-get system.security.enabled)"
+if [ "$enabled" = "1" ]; then
+    SHADOWPASSWD=$(openssl passwd -1 "${MASTERPASSWD}")
+elif [ -s /usr/share/kodacy/root.shadow ]; then
+    SHADOWPASSWD=$(cat /usr/share/kodacy/root.shadow)
+    MASTERPASSWD=
+else
+    MASTERPASSWD="linux"
+    SHADOWPASSWD=$(openssl passwd -1 "${MASTERPASSWD}")
+fi
+
+echo "root:${SHADOWPASSWD}:::::::" > /run/batocera.shadow
+echo "batocera::::::::" >> /run/batocera.shadow # required for su for flatpak/batocera user
+
+# samba, while it is still in the image (dropped in Phase 9)
+if command -v smbpasswd >/dev/null 2>&1; then
+    mkdir -p /var/lib/samba/private /var/lock/samba
+    if [ -n "${MASTERPASSWD}" ]; then
+        printf "$MASTERPASSWD\n$MASTERPASSWD\n" | smbpasswd -a -s root > /dev/null
+    fi
+    if [ "$enabled" != "1" ]; then
+        printf "\n\n" | smbpasswd -a -s nobody > /dev/null
+    fi
+fi
+
+echo "done."

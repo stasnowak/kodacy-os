@@ -1,0 +1,33 @@
+#!/bin/sh
+# KodacyOS: the Kodacy launcher is the frontend. EmulationStation stays in the
+# image until Phase 7 but does not start (system.es.atstartup=0); for debugging
+# `/etc/init.d/S31kodacy stop; emulationstation` brings it up.
+
+PIDFILE=/var/run/kodacy.pid
+
+case "$1" in
+	start)
+		printf "Starting kodacy: "
+		start-stop-daemon -S -b -m -p "$PIDFILE" --exec /usr/bin/kodacy-supervisor
+		echo "done."
+		;;
+	stop)
+		printf "Stopping kodacy: "
+		# the supervisor's TERM trap kills its child; love is killed again in
+		# case the trap did not get to run
+		start-stop-daemon -K -q -p "$PIDFILE" 2>/dev/null
+		sleep 1
+		killall -q love 2>/dev/null
+		rm -f "$PIDFILE"
+		echo "done."
+		;;
+	restart|reload)
+		"$0" stop
+		"$0" start
+		;;
+	*)
+		echo "Usage: $0 {start|stop|restart}"
+		exit 1
+esac
+
+exit 0
