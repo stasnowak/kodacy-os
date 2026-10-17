@@ -86,7 +86,14 @@ Any Linux with Docker works; this is the host the first builds ran on:
   tree deleted (`rm -rf output/h700`, it rebuilds in under five hours).
   Docker Desktop's `docker_data.vhdx` never shrinks by itself; space freed
   inside it is reused, and to give it back to Windows stop Docker and run
-  `Optimize-VHD` / diskpart `compact vdisk` on the file.
+  `Optimize-VHD` / diskpart `compact vdisk` on the file. Done once on 18 Oct
+  2026 (elevated PowerShell: quit Docker Desktop, `wsl --shutdown`,
+  `Optimize-VHD -Path "$env:LOCALAPPDATA\Docker\wsl\disk\docker_data.vhdx" -Mode Full`,
+  4 minutes): 733 GB → 117 GB, `C:` free 38 GB → 657 GB. Docker Desktop on
+  this machine is the per-user install,
+  `%LOCALAPPDATA%\Programs\DockerDesktop\Docker Desktop.exe`; after a
+  `wsl --shutdown` the build container may loop on restart and is simply
+  recreated with the `docker run` line above (the volume keeps everything).
 
 Commands, from a Windows shell (`MSYS_NO_PATHCONV=1` for Git Bash):
 
