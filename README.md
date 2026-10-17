@@ -111,10 +111,12 @@ Outputs: `output/<target>/images/batocera/images/<device>/batocera-h700-<device>
 
 | | |
 |---|---|
-| started | 2026-10-17 13:39 CEST, `make h700-build`, cold `dl/` and ccache |
-| wall time | _(filled when the build completes)_ |
-| peak disk | _(filled when the build completes)_ |
-| output | `output/h700/images/batocera/images/anbernic-rg40xx-v*/`, `anbernic-rg35xx-h*/` (36 device directories in all) |
+| started | 2026-10-17 14:18 CEST, `make h700-build` (after the three drift fixes; `dl/` already filled, ccache cold) |
+| wall time | **4 h 39 min** (`real 278m58s`, `user 4109m`, 32 cores, `PARALLEL_BUILD=y`) |
+| disk | `output/h700/` about 300 GB after the build, `dl/` 27 GB; the Docker volume went from 50 GB to about 330 GB used |
+| output | `output/h700/images/batocera/images/<device>/batocera-h700-<device>-44-20261017.img.gz`, 37 device directories |
+| image | 2.41 GB `.img.gz` per device; inside: `boot/batocera` squashfs **1.88 GB** + `boot/rufomaculata` (libretro cores) **518 MB**, `boot/linux` 26.3 MB, `boot/initrd.lz4` 1.1 MB, one `.dtb`, `u-boot-sunxi-with-spl.bin` 680 KB |
+| checked | `gzip -t` passes on all eight `anbernic-rg40xx-v*` and `anbernic-rg35xx-h*` images; copies in `images/stock/` of the Windows clone (git-ignored) |
 
 ## Flashing
 
