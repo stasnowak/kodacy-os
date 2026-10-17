@@ -35,3 +35,10 @@ typescript
 .ruff_cache
 .coverage
 *.mo
+
+# KodacyOS
+/configs/kodacy-*_defconfig
+/build-*.log
+/build-*.start
+/build-*.end
+/images
