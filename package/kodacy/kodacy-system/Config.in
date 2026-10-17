@@ -57,10 +57,13 @@ config BR2_PACKAGE_KODACY_SYSTEM
 	select BR2_PACKAGE_SDL2_KMSDRM
 	select BR2_PACKAGE_SDL2_OPENGLES
 
-	# the launcher downloads
-	select BR2_PACKAGE_LIBCURL_CURL
-	select BR2_PACKAGE_CA_CERTIFICATES
+	# the launcher downloads (curl over TLS with the system certificates)
+	select BR2_PACKAGE_OPENSSL
 	select BR2_PACKAGE_LIBOPENSSL_BIN		# sha256 checks, S35securepasswd
+	select BR2_PACKAGE_LIBCURL
+	select BR2_PACKAGE_LIBCURL_CURL
+	select BR2_PACKAGE_LIBCURL_OPENSSL
+	select BR2_PACKAGE_CA_CERTIFICATES
 
 	# network (Phase 8): the OS owns WiFi with wpa_supplicant (WPS included),
 	# driven over its control socket by board/kodacy/fsoverlay/etc/init.d/S08wifi
