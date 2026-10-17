@@ -128,6 +128,21 @@ Outputs: `output/<target>/images/batocera/images/<device>/batocera-h700-<device>
 | image | 2.41 GB `.img.gz` per device; inside: `boot/batocera` squashfs **1.88 GB** + `boot/rufomaculata` (libretro cores) **518 MB**, `boot/linux` 26.3 MB, `boot/initrd.lz4` 1.1 MB, one `.dtb`, `u-boot-sunxi-with-spl.bin` 680 KB |
 | checked | `gzip -t` passes on all eight `anbernic-rg40xx-v*` and `anbernic-rg35xx-h*` images; copies in `images/stock/` of the Windows clone (git-ignored) |
 
+### KodacyOS build (Phases 3 to 9, built once at the end)
+
+KodacyOS = Batocera's H700 hardware template + LÖVE 11.5 + the Kodacy
+launcher. Image names: `kodacy-h700-<device>-<version>-<date>.img.gz`
+(`board/kodacy/scripts/post-image.sh`); the file names the initramfs and
+`batocera-upgrade` read (`batocera.board`, `batocera.version`,
+`boot/batocera`, `batocera-boot.conf`) keep their upstream names.
+
+| | |
+|---|---|
+| wall time | _(filled when the trimmed build completes)_ |
+| squashfs / image | _(filled when the trimmed build completes; stock was 1.88 GB + 518 MB cores)_ |
+| boot to Home | _(measured on the console)_ |
+| processes at Home | _(from `ps -o comm= \| sort -u` on the console)_ |
+
 ## Flashing
 
 The `.img.gz` is a whole-card image: MBR, U-Boot SPL at byte offset 8192,

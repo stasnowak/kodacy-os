@@ -58,10 +58,20 @@ fi
 # (evsieve, batocera-udev-rules), S08connman (Batocera's base overlay; connman
 # is not built since Phase 8), S41dhcpcd (buildroot's dhcpcd package; S08wifi
 # runs dhcpcd for wlan0 itself).
+# Phase 9 adds the base overlay's scripts for packages we do not build: lirc,
+# sixad and joycond (pads over Bluetooth), the alt-fn keyboard tweak, CEC,
+# values4boot (needs batocera-drminfo, ES display values), Samba.
 for s in \
     S15virtualevents \
     S08connman \
     S41dhcpcd \
+    S25lircd \
+    S31sixad \
+    S33disablealtfn \
+    S61cec \
+    S65values4boot \
+    S91smb \
+    S97joycond \
     ; do
     rm -f "${TARGET_DIR}/etc/init.d/${s}"
 done
