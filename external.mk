@@ -29,6 +29,9 @@ include $(sort $(wildcard $(BR2_EXTERNAL_BATOCERA_PATH)/package/batocera/*/*.mk 
 			  $(BR2_EXTERNAL_BATOCERA_PATH)/package/batocera/*/*/*/*/*.mk \
 			  $(BR2_EXTERNAL_BATOCERA_PATH)/python-src/*/*.mk))
 
+# KodacyOS packages
+include $(sort $(wildcard $(BR2_EXTERNAL_BATOCERA_PATH)/package/kodacy/*/*.mk))
+
 UPDATE_PO_FILES_BUILD_DIR := $(BUILD_DIR)/batocera-locale-update
 
 clean-po-files:

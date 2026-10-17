@@ -115,3 +115,6 @@ BR2_CCACHE=y
 
 # Don't purge locales
 BR2_ENABLE_LOCALE_PURGE=n
+
+# KodacyOS: the LÖVE 11.5 runtime (package/kodacy/love)
+BR2_PACKAGE_LOVE=y

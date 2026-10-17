@@ -782,3 +782,6 @@ source "$BR2_EXTERNAL_BATOCERA_PATH/python-src/batocera-launch-openmohaa/Config.
 source "$BR2_EXTERNAL_BATOCERA_PATH/python-src/batocera-launch-pcsx2/Config.in"
 source "$BR2_EXTERNAL_BATOCERA_PATH/python-src/batocera-launch-rpcs3/Config.in"
 source "$BR2_EXTERNAL_BATOCERA_PATH/python-src/batocera-launch-xemu-chihiro/Config.in"
+
+# KodacyOS packages (package/kodacy/)
+source "$BR2_EXTERNAL_BATOCERA_PATH/package/kodacy/Config.in"
