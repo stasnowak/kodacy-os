@@ -41,6 +41,10 @@ So that merges with upstream stay cheap, everything KodacyOS adds lives in:
 
 Nothing else in the upstream tree is edited. `README.md` is ours.
 
+On Windows, clone with `git config core.autocrlf false` (set before the
+first checkout, or re-checkout afterwards): the upstream tree is LF-only and
+U-Boot's `extlinux.conf` parser, genimage and kconfig do not tolerate CR.
+
 ## Build host
 
 Any Linux with Docker works; this is the host the first builds ran on:
