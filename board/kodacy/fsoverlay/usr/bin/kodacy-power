@@ -1,0 +1,43 @@
+#!/bin/sh
+# KodacyOS power button, called by triggerhappy (etc/triggerhappy/triggers.d/kodacy.conf):
+#   kodacy-power press     remember when the button went down
+#   kodacy-power release   short press = sleep (pm-suspend runs /etc/pm/sleep.d,
+#                          so the H700 hook mutes the DAC and the LEDs), held
+#                          HOLD_SECONDS or longer = power off
+#   kodacy-power suspend | poweroff   the actions themselves
+# Replaces Batocera's batocera-shutdown (fake suspend, ES, displays, Bluetooth).
+
+HOLD_SECONDS=2
+STAMP=/var/run/kodacy-power.pressed
+LOG=/userdata/system/logs/kodacy-power.log
+
+log() { mkdir -p "$(dirname "$LOG")"; echo "$(date '+%H:%M:%S') $*" >> "$LOG" 2>/dev/null; }
+
+do_suspend() {
+	log "suspend"
+	sync
+	pm-suspend
+	log "resumed"
+}
+
+do_poweroff() {
+	log "poweroff"
+	sync
+	poweroff
+}
+
+case "$1" in
+	press)
+		cut -d' ' -f1 /proc/uptime > "$STAMP"
+		;;
+	release)
+		[ -f "$STAMP" ] || exit 0
+		then=$(cut -d. -f1 "$STAMP"); now=$(cut -d' ' -f1 /proc/uptime | cut -d. -f1)
+		rm -f "$STAMP"
+		if [ $((now - then)) -ge "$HOLD_SECONDS" ]; then do_poweroff; else do_suspend; fi
+		;;
+	suspend)  do_suspend ;;
+	poweroff) do_poweroff ;;
+	*) echo "Usage: $0 {press|release|suspend|poweroff}"; exit 1 ;;
+esac
+exit 0

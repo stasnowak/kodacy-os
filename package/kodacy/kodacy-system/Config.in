@@ -1,0 +1,81 @@
+config BR2_PACKAGE_KODACY_SYSTEM
+	bool "kodacy-system"
+	help
+	  KodacyOS system selection: the infrastructure that
+	  BR2_PACKAGE_BATOCERA_SYSTEM selects and that the H700 hardware
+	  template needs to boot and work, plus LÖVE and the Kodacy
+	  launcher, and nothing else. Every select has its reason in
+	  docs/dependencies.md. Replaces batocera-system, batocera-extras,
+	  batocera-tools, batocera-all-systems, batocera-linux-firmwares
+	  and batocera-video-codecs in configs/kodacy-board.common.
+
+	# image assembly and boot (hardware template)
+	select BR2_TARGET_BATOCERA_IMAGES_DEFINITIONS	# BR2_TARGET_BATOCERA_IMAGES, set in the board file
+	select BR2_PACKAGE_BATOCERA_IMAGE		# genimage + genext2fs on the host
+	select BR2_PACKAGE_BATOCERA_INITRAMFS		# mounts the squashfs, applies batocera.update
+	select BR2_TARGET_ROOTFS_SQUASHFS		# the rootfs image
+	select BR2_PACKAGE_ALLLINUXFIRMWARES		# batocera-initramfs copies rtw88/rtw8821c_fw.bin out of its build dir; the target copy is pruned to a whitelist by board/kodacy/scripts/post-build.sh
+	select BR2_PACKAGE_WIRELESS_REGDB		# regulatory.db for the WiFi driver
+	select BR2_PACKAGE_ROCKNIX_JOYPAD		# the H700 pad driver (out-of-tree kernel module)
+	select BR2_PACKAGE_DOSFSTOOLS			# FAT boot partition
+	select BR2_PACKAGE_DOSFSTOOLS_FSCK_FAT
+	select BR2_PACKAGE_DOSFSTOOLS_MKFS_FAT
+	select BR2_PACKAGE_HOST_DOSFSTOOLS		# genimage
+	select BR2_PACKAGE_E2FSPROGS			# ext4 SHARE partition
+	select BR2_PACKAGE_E2FSPROGS_RESIZE2FS		# S02resize
+	select BR2_PACKAGE_GPTFDISK			# S02resize (sgdisk)
+	select BR2_PACKAGE_GPTFDISK_SGDISK
+	select BR2_PACKAGE_PARTED			# S02resize
+	select BR2_PACKAGE_DIALOG			# S02resize progress screen
+	select BR2_PACKAGE_UNZIP			# batocera-upgrade, launcher helpers
+	select BR2_PACKAGE_XZ				# batocera-upgrade (boot.tar.xz)
+
+	# boot scripts' helpers
+	select BR2_PACKAGE_BASH				# the kept batocera-* helper scripts are bash
+	select BR2_PACKAGE_BATOCERA_SETTINGS		# batocera-settings-get/set, read by every kept init script
+	select BR2_PACKAGE_BATOCERA_UDEV_RULES		# pad and device permissions (S15virtualevents is removed post-build)
+	select BR2_PACKAGE_TRIGGERHAPPY			# power button (our conf and S50triggerhappy, see kodacy-system.mk)
+	select BR2_PACKAGE_PM_UTILS			# pm-suspend, owner of /etc/pm/sleep.d (H700 hook 90h700-sleep)
+	select BR2_PACKAGE_FAKE_HWCLOCK			# no battery RTC on the RG40XX V: keeps the clock across reboots
+	select BR2_PACKAGE_DROPBEAR			# ssh
+	select BR2_PACKAGE_GESFTPSERVER			# scp/sftp over dropbear (probes, fixtures)
+
+	# sound: ALSA straight to the H700 codec (OpenAL's ALSA backend), no pipewire
+	select BR2_PACKAGE_ALSA_LIB
+	select BR2_PACKAGE_ALSA_UTILS
+	select BR2_PACKAGE_ALSA_UTILS_AMIXER		# S20-audio-volume, 90h700-sleep
+
+	# graphics: Mesa Panfrost GLES2/EGL/GBM for SDL2 KMS/DRM (LLVM is a hard dependency of the panfrost driver in this buildroot)
+	select BR2_PACKAGE_LIBDRM
+	select BR2_PACKAGE_MESA3D
+	select BR2_PACKAGE_MESA3D_LLVM
+	select BR2_PACKAGE_MESA3D_OPENGL_ES
+	select BR2_PACKAGE_MESA3D_OPENGL_EGL
+	select BR2_PACKAGE_MESA3D_GBM
+	select BR2_PACKAGE_MESA3D_GALLIUM_DRIVER_PANFROST
+	select BR2_PACKAGE_SDL2
+	select BR2_PACKAGE_SDL2_KMSDRM
+	select BR2_PACKAGE_SDL2_OPENGLES
+
+	# the launcher downloads
+	select BR2_PACKAGE_LIBCURL_CURL
+	select BR2_PACKAGE_CA_CERTIFICATES
+	select BR2_PACKAGE_LIBOPENSSL_BIN		# sha256 checks, S35securepasswd
+
+	# network: connman until Phase 8 replaces it
+	select BR2_PACKAGE_CONNMAN
+	select BR2_PACKAGE_CONNMAN_WIFI
+	select BR2_PACKAGE_CONNMAN_CLIENT
+	select BR2_PACKAGE_CONNMAN_LOOPBACK
+	select BR2_PACKAGE_WPA_SUPPLICANT
+	select BR2_PACKAGE_WPA_SUPPLICANT_NL80211
+	select BR2_PACKAGE_WPA_SUPPLICANT_CLI
+	select BR2_PACKAGE_WPA_SUPPLICANT_CTRL_IFACE
+	select BR2_PACKAGE_WPA_SUPPLICANT_WPA3
+	select BR2_PACKAGE_WPA_SUPPLICANT_DBUS		# connman talks to it over D-Bus
+	select BR2_PACKAGE_IW
+	select BR2_PACKAGE_IPROUTE2
+
+	# Kodacy
+	select BR2_PACKAGE_LOVE
+	select BR2_PACKAGE_KODACY_LAUNCHER

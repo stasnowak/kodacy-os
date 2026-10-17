@@ -19,8 +19,8 @@ set_conf() {
     fi
 }
 
-# Phase 6: Kodacy is the frontend. ES stays installed (debug fallback) but
-# S31emulationstation honours system.es.atstartup=0 and does not start it.
+# Phase 6: Kodacy is the frontend. system.es.atstartup=0 is kept even though
+# ES is gone since Phase 7 (harmless, and stock scripts may read it).
 set_conf system.es.atstartup 0
 set_conf system.hostname kodacy
 
@@ -37,9 +37,34 @@ else
     echo "kodacy post-build: KODACY_ROOT_PASSWD not set, root password stays 'linux'" >&2
 fi
 
-# The supervisor and the init script must be executable whatever the
+# Phase 7: firmware. batocera-initramfs needs the alllinuxfirmwares build dir
+# for rtw88/rtw8821c_fw.bin, so the package stays, but the target copy of the
+# whole linux-firmware tree (hundreds of MB) is cut down to what the H700
+# hardware loads: the rtw88 WiFi firmware, the regulatory database
+# (wireless-regdb) and the panel timing files (H700 overlay).
+FW="${TARGET_DIR}/lib/firmware"
+if [ -d "${FW}" ]; then
+    find "${FW}" -mindepth 1 -maxdepth 1 \
+        ! -name rtw88 ! -name panels ! -name 'regulatory.db*' \
+        -exec rm -rf {} +
+    if [ -d "${FW}/rtw88" ]; then
+        find "${FW}/rtw88" -type f ! -name 'rtw8821c*' -delete
+    fi
+    echo "kodacy post-build: /lib/firmware kept: $(ls "${FW}" | tr '\n' ' ')" >&2
+fi
+
+# Phase 7: init scripts of dropped packages that still arrive through
+# overlays or kept packages (overlays cannot delete files).
+for s in \
+    S15virtualevents \
+    ; do
+    rm -f "${TARGET_DIR}/etc/init.d/${s}"
+done
+
+# The supervisor and the init scripts must be executable whatever the
 # overlay's file modes were on the host that committed them.
 chmod 0755 "${TARGET_DIR}/usr/bin/kodacy-supervisor" \
+           "${TARGET_DIR}/usr/bin/kodacy-power" \
            "${TARGET_DIR}/etc/init.d/S31kodacy" \
            "${TARGET_DIR}/etc/init.d/S35securepasswd" \
-           "${TARGET_DIR}/usr/share/batocera/datainit/roms/ports/Kodacy.sh" 2>/dev/null || true
+           "${TARGET_DIR}/etc/init.d/S50triggerhappy" 2>/dev/null || true

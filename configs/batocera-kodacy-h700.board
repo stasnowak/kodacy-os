@@ -34,16 +34,8 @@ BR2_LINUX_KERNEL_DTB_OVERLAY_SUPPORT=y
 # Bootloader
 BR2_PACKAGE_UBOOT_ANBERNIC_H700=y
 
-# GPU
-BR2_PACKAGE_BATOCERA_PANFROST_MESA3D=y
-BR2_PACKAGE_BATOCERA_WAYLAND_LABWC=y
-BR2_PACKAGE_BATOCERA_XWAYLAND=y
-
-# Batocera splash screen
-BR2_PACKAGE_BATOCERA_SPLASH_MPV=y
-
-# Kodi
-BR2_PACKAGE_BATOCERA_KODI21=y
+# GPU: Mesa Panfrost (GLES2/EGL/GBM) is selected by package/kodacy/kodacy-system;
+# no Wayland compositor, no Xwayland, no splash video, no Kodi (Phase 7).
 
 # KodacyOS: only the devices we target; paths are relative to board/batocera/ because
 # board/batocera/scripts/post-image-script.sh prefixes them with that directory.
