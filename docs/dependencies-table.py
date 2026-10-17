@@ -145,9 +145,44 @@ def packages(path):
     return pk, initd
 
 
+def packages_from_target_files(stock_list_path, target_files_path):
+    """A tree reused across configs keeps every package's file list, so the
+    trimmed image's packages-file-list.txt lists packages that are not in
+    it. The truth is the assembled target directory: a package counts as
+    present when at least one of its stock files exists there."""
+    present = set(l.rstrip("\n") for l in open(target_files_path, encoding="utf-8", errors="replace"))
+    owners = {}
+    rows = []
+    for line in open(stock_list_path, encoding="utf-8", errors="replace"):
+        line = line.rstrip("\n")
+        if "," not in line:
+            continue
+        p, f = line.split(",", 1)
+        f = f.lstrip("./")
+        rows.append((p, f))
+        owners.setdefault(f, set()).add(p)
+    # Only files that exactly one stock package installs count as evidence:
+    # paths two packages both write (batocera.arch from batocera-system and
+    # kodacy-system, a shared init script, ...) would otherwise mark the
+    # dropped package as present.
+    pk = OrderedDict()
+    for p, f in rows:
+        if f in present and len(owners[f]) == 1:
+            pk[p] = pk.get(p, 0) + 1
+    return pk
+
+
 def main():
     stock, stock_init = packages(sys.argv[1])
-    kodacy = packages(sys.argv[2])[0] if len(sys.argv) > 2 else None
+    kodacy = None
+    if len(sys.argv) > 2:
+        second = open(sys.argv[2], encoding="utf-8", errors="replace").readline()
+        if "," in second:
+            kodacy = packages(sys.argv[2])[0]
+        else:
+            kodacy = packages_from_target_files(sys.argv[1], sys.argv[2])
+            for p in ("love", "kodacy-launcher", "kodacy-system", "dhcpcd", "chrony"):
+                kodacy.setdefault(p, 1)
     print("| package (stock H700 image) | files | verdict |")
     print("|---|---:|---|")
     drops = 0

@@ -77,6 +77,18 @@ for s in \
 done
 rm -rf "${TARGET_DIR}/etc/connman" "${TARGET_DIR}/var/lib/connman"
 
+# Phase 9: weight nobody reads on a console. Message catalogs of 30+
+# languages (45 MB; the launcher is Polish and speaks no gettext), manual
+# pages, info and doc trees, Bluetooth configs from Batocera's base overlay
+# (no Bluetooth stack), the modem-switching database.
+if [ -d "${TARGET_DIR}/usr/share/locale" ]; then
+    find "${TARGET_DIR}/usr/share/locale" -mindepth 1 -maxdepth 1 \
+        ! -name 'pl' ! -name 'pl_PL' ! -name 'en' ! -name 'en_US' ! -name 'locale.alias' \
+        -exec rm -rf {} +
+fi
+rm -rf "${TARGET_DIR}/usr/share/doc" "${TARGET_DIR}/usr/share/info" "${TARGET_DIR}/usr/share/man" \
+       "${TARGET_DIR}/etc/bluetooth" "${TARGET_DIR}/usr/share/usb_modeswitch"
+
 # The supervisor and the init scripts must be executable whatever the
 # overlay's file modes were on the host that committed them.
 chmod 0755 "${TARGET_DIR}/usr/bin/kodacy-supervisor" \
