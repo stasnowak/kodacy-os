@@ -65,6 +65,12 @@ Any Linux with Docker works; this is the host the first builds ran on:
   `MAKEFLAGS=r` (`--no-builtin-rules`) into buildroot and breaks packages
   such as `host-xxhash`; this fork's `Makefile` clears `MAKEFLAGS` for the
   sub-make (one line, commit "upstream fix: DIRECT_BUILD").
+- A cold build of upstream master drifts within months. Two more labelled
+  "upstream fix" commits were needed on 17 Oct 2026: the ten Kodi language
+  packs upstream pins had vanished from `mirrors.kodi.tv`, and
+  `host-cargo-c` (GitHub tag without `Cargo.lock`) vendored crates that need
+  rustc 1.97 on buildroot's 1.95, fixed by fetching the crates.io package
+  with its lockfile. Drop or re-check these at every rebase.
 - ccache: `buildroot-ccache/` in the repo (direct builds), kept between
   builds (`make <target>-ccache-stats`). Downloads: `dl/`.
 
