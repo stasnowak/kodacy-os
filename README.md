@@ -128,6 +128,15 @@ Outputs: `output/<target>/images/batocera/images/<device>/batocera-h700-<device>
 | image | 2.41 GB `.img.gz` per device; inside: `boot/batocera` squashfs **1.88 GB** + `boot/rufomaculata` (libretro cores) **518 MB**, `boot/linux` 26.3 MB, `boot/initrd.lz4` 1.1 MB, one `.dtb`, `u-boot-sunxi-with-spl.bin` 680 KB |
 | checked | `gzip -t` passes on all eight `anbernic-rg40xx-v*` and `anbernic-rg35xx-h*` images; copies in `images/stock/` of the Windows clone (git-ignored) |
 
+### Phase 6 image (stock + our changes, ES kept as fallback)
+
+Built 2026-10-17 19:14 to 23:08 CEST (3 h 54 min, fresh tree, warm ccache
+and downloads), `make kodacy-h700-build` at commit `0ec7429`'s parent
+"Phase 6": four device directories, 2.41 GB each, squashfs 1.88 GB + 518 MB
+cores, both panel DTBs on the card, `/usr/bin/love` 11.5,
+`/usr/share/kodacy/kodacy.love` v0.24.2, boots into Kodacy. Copies in
+`images/kodacy-phase6/` of the Windows clone (git-ignored).
+
 ### KodacyOS build (Phases 3 to 9, built once at the end)
 
 KodacyOS = Batocera's H700 hardware template + LÖVE 11.5 + the Kodacy
