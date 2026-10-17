@@ -61,7 +61,10 @@ Any Linux with Docker works; this is the host the first builds ran on:
 - Inside the container the build is **direct** (the upstream Makefile's
   `DIRECT_BUILD=1`, since there is no Docker inside Docker), with
   `PARALLEL_BUILD=y` and `BATCH_MODE=1` as Batocera's own
-  `scripts/linux/batoceraBuild` uses.
+  `scripts/linux/batoceraBuild` uses. Upstream's direct path leaks
+  `MAKEFLAGS=r` (`--no-builtin-rules`) into buildroot and breaks packages
+  such as `host-xxhash`; this fork's `Makefile` clears `MAKEFLAGS` for the
+  sub-make (one line, commit "upstream fix: DIRECT_BUILD").
 - ccache: `buildroot-ccache/` in the repo (direct builds), kept between
   builds (`make <target>-ccache-stats`). Downloads: `dl/`.
 
