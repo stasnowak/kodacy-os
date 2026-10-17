@@ -73,9 +73,13 @@ Any Linux with Docker works; this is the host the first builds ran on:
   with its lockfile. Drop or re-check these at every rebase.
 - ccache: `buildroot-ccache/` in the repo (direct builds), kept between
   builds (`make <target>-ccache-stats`). Downloads: `dl/`.
-- Rule (owner, 17 Oct 2026): build **once** per phase ladder, at the end,
-  incrementally in the one `output/kodacy-h700` tree. Never start a second
-  output tree, never build between phases.
+- Rule (owner, 17 Oct 2026): build **once** per phase ladder, at the end.
+  Never build between phases. Reuse the tree for changes to our own files
+  (overlay, scripts, a package bump: minutes), but a **config change gets a
+  clean tree**: per-package directories are dependency snapshots, and
+  packages built under an older config leak the files of since-dropped
+  packages (D-Bus, bluez, avahi showed up in a rootfs that had none of them
+  enabled) into the assembled target.
 - Disk: a full stock tree (`output/h700/`) is **430 GB** with per-package
   directories, and the kodacy tree is the same size until Phase 7 trims the
   image. Keep one tree at a time: the stock images are copied out and the
