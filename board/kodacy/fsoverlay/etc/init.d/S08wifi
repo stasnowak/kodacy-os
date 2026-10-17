@@ -1,0 +1,55 @@
+#!/bin/sh
+# KodacyOS WiFi (Phase 8 of plans/kodacy-os.md): wpa_supplicant owns wlan0 and
+# keeps its networks in /userdata/system/wpa_supplicant.conf (update_config=1,
+# so `wpa_cli save_config` and WPS write there); dhcpcd takes the address;
+# chronyd (S49chronyd) sets the clock once there is a route. Replaces connman.
+# docs/wifi.md has the wpa_cli recipe the launcher's screens will use.
+
+IFACE=wlan0
+CONF=/userdata/system/wpa_supplicant.conf
+CTRL=/var/run/wpa_supplicant
+HOSTNAME=$(hostname 2>/dev/null || echo kodacy)
+
+ensure_conf() {
+	[ -s "$CONF" ] && return 0
+	mkdir -p "$(dirname "$CONF")"
+	cat > "$CONF" <<EOF
+ctrl_interface=DIR=$CTRL GROUP=0
+update_config=1
+country=PL
+EOF
+	chmod 600 "$CONF"
+}
+
+start() {
+	printf "Starting wifi: "
+	# the driver may still be probing (S09wifi-probe retries a failed first
+	# SDIO firmware download); wait a little for the interface
+	n=0
+	while [ ! -e "/sys/class/net/$IFACE" ] && [ $n -lt 10 ]; do sleep 1; n=$((n+1)); done
+	if [ ! -e "/sys/class/net/$IFACE" ]; then
+		echo "no $IFACE"
+		return 0
+	fi
+	ensure_conf
+	ip link set "$IFACE" up
+	wpa_supplicant -B -i "$IFACE" -D nl80211 -c "$CONF" -P /var/run/wpa_supplicant.pid
+	dhcpcd -b -q -h "$HOSTNAME" -f /etc/dhcpcd.conf "$IFACE"
+	echo "done."
+}
+
+stop() {
+	printf "Stopping wifi: "
+	dhcpcd -k "$IFACE" 2>/dev/null
+	wpa_cli -i "$IFACE" terminate >/dev/null 2>&1 || killall -q wpa_supplicant
+	ip link set "$IFACE" down 2>/dev/null
+	echo "done."
+}
+
+case "$1" in
+	start) start ;;
+	stop) stop ;;
+	restart|reload) stop; sleep 1; start ;;
+	*) echo "Usage: $0 {start|stop|restart}"; exit 1 ;;
+esac
+exit 0

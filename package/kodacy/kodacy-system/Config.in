@@ -62,17 +62,20 @@ config BR2_PACKAGE_KODACY_SYSTEM
 	select BR2_PACKAGE_CA_CERTIFICATES
 	select BR2_PACKAGE_LIBOPENSSL_BIN		# sha256 checks, S35securepasswd
 
-	# network: connman until Phase 8 replaces it
-	select BR2_PACKAGE_CONNMAN
-	select BR2_PACKAGE_CONNMAN_WIFI
-	select BR2_PACKAGE_CONNMAN_CLIENT
-	select BR2_PACKAGE_CONNMAN_LOOPBACK
+	# network (Phase 8): the OS owns WiFi with wpa_supplicant (WPS included),
+	# driven over its control socket by board/kodacy/fsoverlay/etc/init.d/S08wifi
+	# and later by the launcher through wpa_cli; dhcpcd for the address, chrony
+	# for the clock (TLS needs it, the RG40XX V has no battery RTC). No connman,
+	# no D-Bus.
 	select BR2_PACKAGE_WPA_SUPPLICANT
 	select BR2_PACKAGE_WPA_SUPPLICANT_NL80211
 	select BR2_PACKAGE_WPA_SUPPLICANT_CLI
 	select BR2_PACKAGE_WPA_SUPPLICANT_CTRL_IFACE
+	select BR2_PACKAGE_WPA_SUPPLICANT_WPS
 	select BR2_PACKAGE_WPA_SUPPLICANT_WPA3
-	select BR2_PACKAGE_WPA_SUPPLICANT_DBUS		# connman talks to it over D-Bus
+	select BR2_PACKAGE_WPA_SUPPLICANT_PASSPHRASE
+	select BR2_PACKAGE_DHCPCD
+	select BR2_PACKAGE_CHRONY
 	select BR2_PACKAGE_IW
 	select BR2_PACKAGE_IPROUTE2
 

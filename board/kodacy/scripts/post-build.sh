@@ -53,13 +53,19 @@ if [ -d "${FW}" ]; then
     echo "kodacy post-build: /lib/firmware kept: $(ls "${FW}" | tr '\n' ' ')" >&2
 fi
 
-# Phase 7: init scripts of dropped packages that still arrive through
-# overlays or kept packages (overlays cannot delete files).
+# Phase 7/8: init scripts of dropped packages that still arrive through
+# overlays or kept packages (overlays cannot delete files): S15virtualevents
+# (evsieve, batocera-udev-rules), S08connman (Batocera's base overlay; connman
+# is not built since Phase 8), S41dhcpcd (buildroot's dhcpcd package; S08wifi
+# runs dhcpcd for wlan0 itself).
 for s in \
     S15virtualevents \
+    S08connman \
+    S41dhcpcd \
     ; do
     rm -f "${TARGET_DIR}/etc/init.d/${s}"
 done
+rm -rf "${TARGET_DIR}/etc/connman" "${TARGET_DIR}/var/lib/connman"
 
 # The supervisor and the init scripts must be executable whatever the
 # overlay's file modes were on the host that committed them.
@@ -67,4 +73,5 @@ chmod 0755 "${TARGET_DIR}/usr/bin/kodacy-supervisor" \
            "${TARGET_DIR}/usr/bin/kodacy-power" \
            "${TARGET_DIR}/etc/init.d/S31kodacy" \
            "${TARGET_DIR}/etc/init.d/S35securepasswd" \
-           "${TARGET_DIR}/etc/init.d/S50triggerhappy" 2>/dev/null || true
+           "${TARGET_DIR}/etc/init.d/S50triggerhappy" \
+           "${TARGET_DIR}/etc/init.d/S08wifi" 2>/dev/null || true

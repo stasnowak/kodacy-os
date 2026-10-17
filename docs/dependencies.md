@@ -33,7 +33,10 @@ BR2_…` (an upstream option), `missing: new package`.
 | dropbear | ssh | `BR2_PACKAGE_DROPBEAR=y` (+ client, small) | present |
 | pm-utils | owner of `/etc/pm/sleep.d` (H700 hook `90h700-sleep`) | `BR2_PACKAGE_PM_UTILS=y` | present (keep while sleep is in scope) |
 | python3 | only if a kept script needs it | `BR2_PACKAGE_PYTHON3=y` (configgen, ES tooling) | present; drop candidate once ES and configgen are gone (the upgrade script is sh) |
-| connman | WiFi until Phase 8 | `BR2_PACKAGE_CONNMAN=y` (+ wifi, client, ethernet, iptables, loopback) | present; **drop in Phase 8** |
+| connman | WiFi until Phase 8 | `BR2_PACKAGE_CONNMAN=y` (+ wifi, client, ethernet, iptables, loopback) | **drop: replaced by wpa_supplicant + dhcpcd + chrony (Phase 8)**; `S08wifi` in our overlay, `S08connman` removed post-build, no D-Bus |
+| wpa_supplicant (WPS, WPA3, passphrase, cli, ctrl iface) | the OS owns WiFi; the launcher drives `wpa_cli` | selected by `kodacy-system` | keep: `docs/wifi.md` |
+| dhcpcd | address on wlan0 | selected by `kodacy-system` | keep: started by `S08wifi` for wlan0 only |
+| chrony | clock for TLS, no battery RTC | selected by `kodacy-system`, `S49chronyd`, `/etc/chrony.conf` | keep: with `fake-hwclock` for the boot-time value |
 | rtw88 firmware | `rtw88/rtw8821c_fw.bin` | `BR2_PACKAGE_BATOCERA_LINUX_FIRMWARES=y` (the exact file list is in that package) | present _(device: `ls /lib/firmware/rtw88`)_ |
 | regulatory database | `iw reg set` | `BR2_PACKAGE_WIRELESS_REGDB=y`, `BR2_PACKAGE_IW=y` | present |
 | Bluetooth blob | only if Bluetooth stays | `BLUEZ5_UTILS=y`, `BATOCERA_BLUETOOTH=y`; the RTL8821CS BT firmware/config availability _(device)_ | present; drop candidate (follow-up F) |
