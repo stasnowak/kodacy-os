@@ -73,6 +73,16 @@ Any Linux with Docker works; this is the host the first builds ran on:
   with its lockfile. Drop or re-check these at every rebase.
 - ccache: `buildroot-ccache/` in the repo (direct builds), kept between
   builds (`make <target>-ccache-stats`). Downloads: `dl/`.
+- Rule (owner, 17 Oct 2026): build **once** per phase ladder, at the end,
+  incrementally in the one `output/kodacy-h700` tree. Never start a second
+  output tree, never build between phases.
+- Disk: a full stock tree (`output/h700/`) is **430 GB** with per-package
+  directories, and the kodacy tree is the same size until Phase 7 trims the
+  image. Keep one tree at a time: the stock images are copied out and the
+  tree deleted (`rm -rf output/h700`, it rebuilds in under five hours).
+  Docker Desktop's `docker_data.vhdx` never shrinks by itself; space freed
+  inside it is reused, and to give it back to Windows stop Docker and run
+  `Optimize-VHD` / diskpart `compact vdisk` on the file.
 
 Commands, from a Windows shell (`MSYS_NO_PATHCONV=1` for Git Bash):
 
