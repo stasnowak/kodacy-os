@@ -16,4 +16,9 @@ CARGO_C_LICENSE_FILES = LICENSE
 
 HOST_CARGO_C_DEPENDENCIES = host-pkgconf host-rustc host-openssl
 
+# buildroot has no extractor for the .crate suffix (it is a gzipped tar)
+define HOST_CARGO_C_EXTRACT_CMDS
+	$(INFLATE.gz) $(HOST_CARGO_C_DL_DIR)/$(HOST_CARGO_C_SOURCE) | 		$(TAR) --strip-components=1 -C $(@D) $(TAR_OPTIONS) -
+endef
+
 $(eval $(host-cargo-package))
