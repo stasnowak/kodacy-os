@@ -151,10 +151,16 @@ launcher. Image names: `kodacy-h700-<device>-<version>-<date>.img.gz`
 
 | | |
 |---|---|
-| wall time | _(filled when the trimmed build completes)_ |
-| squashfs / image | _(filled when the trimmed build completes; stock was 1.88 GB + 518 MB cores)_ |
+| built | 2026-10-17 23:15 to 23:54 CEST, **clean tree**, `make kodacy-h700-build`, 192 packages |
+| wall time | **38 min 35 s** (+ 2 min for the image step after two one-line fixes), warm ccache and downloads |
+| tree | `output/kodacy-h700/` **48 GB** (stock tree was 430 GB) |
+| rootfs | squashfs **112.7 MB** (stock 1.88 GB + 518 MB cores), 356 MB uncompressed, 3752 files; `usr/lib` 236 MB of which LLVM/clang/libclc 200 MB forced by Mesa's Panfrost compiler |
+| image | **133.7 MB** `kodacy-h700-<device>-0.1-20261018.img.gz` per device (stock 2.41 GB); on the card: `boot/batocera` 112.7 MB, `linux` 26.3 MB, `initrd.lz4` 1.1 MB, both panel DTBs, the SPL, `rufomaculata` 4 KB (empty, kept because upstream's post-image renames it unconditionally) |
+| init scripts | S00bootcustom S01date S02led-status S02resize S02sysctl S03urandom S04populate S05udevd S06modprobe S07network S08wifi S09wifi-probe S11modules S11share S12populateshare S18governor S20-audio-volume S26system S27brightness S31kodacy S35securepasswd S47fake-hwclock S49chronyd S50dropbear S50triggerhappy S99userservices |
+| firmware | `rtw88/rtw8821c_fw.bin`, `regulatory.db`, `panels/` only |
 | boot to Home | _(measured on the console)_ |
 | processes at Home | _(from `ps -o comm= \| sort -u` on the console)_ |
+| copies | `images/kodacy/<device>/` of the Windows clone (git-ignored), with `boot.tar.xz` for `batocera-upgrade` |
 
 ## Flashing
 
