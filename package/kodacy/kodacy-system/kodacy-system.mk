@@ -77,6 +77,10 @@ endef
 define KODACY_SYSTEM_INSTALL_IMAGES_CMDS
 	# batocera-boot.conf lands on the FAT partition (post-image-script.sh copies it)
 	$(INSTALL) -D -m 0644 $(BATOCERA_SYSTEM_SRC)/batocera-boot.conf $(BINARIES_DIR)/batocera-boot.conf
+	# post-image-script.sh copies $(BINARIES_DIR)/tools to the boot partition
+	# unconditionally; stock fills it with winbtrfs's Windows driver, which we
+	# do not ship, so an empty directory keeps the upstream script untouched
+	mkdir -p $(BINARIES_DIR)/tools
 endef
 
 $(eval $(generic-package))
