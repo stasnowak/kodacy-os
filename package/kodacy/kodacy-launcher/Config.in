@@ -1,0 +1,11 @@
+config BR2_PACKAGE_KODACY_LAUNCHER
+	bool "kodacy-launcher"
+	select BR2_PACKAGE_LOVE
+	help
+	  The released Kodacy launcher (kodacy.love, built and published by
+	  kodacy-studio's deploy workflow) pinned by version and sha256, plus
+	  the supervisor that runs it and the games it starts through
+	  run.txt. Installs /usr/share/kodacy/kodacy.love and
+	  /usr/share/kodacy/kodacy.version.
+
+	  https://studio.kodacy.pl/console/

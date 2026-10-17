@@ -1,3 +1,4 @@
 menu "KodacyOS"
   source "$BR2_EXTERNAL_BATOCERA_PATH/package/kodacy/love/Config.in"
+  source "$BR2_EXTERNAL_BATOCERA_PATH/package/kodacy/kodacy-launcher/Config.in"
 endmenu

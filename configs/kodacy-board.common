@@ -118,3 +118,5 @@ BR2_ENABLE_LOCALE_PURGE=n
 
 # KodacyOS: the LÖVE 11.5 runtime (package/kodacy/love)
 BR2_PACKAGE_LOVE=y
+# KodacyOS: the released kodacy.love + supervisor (package/kodacy/kodacy-launcher)
+BR2_PACKAGE_KODACY_LAUNCHER=y

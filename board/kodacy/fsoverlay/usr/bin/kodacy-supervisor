@@ -1,0 +1,97 @@
+#!/bin/sh
+# KodacyOS supervisor: runs the Kodacy launcher and the games it asks for.
+#
+# Loop: the launcher (/usr/share/kodacy/kodacy.love) writes run.txt ("path of
+# the .love" and "gameId", one per line) and quits; we start that game with
+# its own save folder, and when the game ends the launcher comes back. No
+# run.txt = the child left the launcher: with KODACY_ONESHOT=1 (the
+# EmulationStation port entry of Phase 5) we exit so ES comes back, otherwise
+# (S31kodacy, Phase 6 on) the launcher simply starts again, there is nothing
+# else to show.
+#
+# Not here, by decision (plans/kodacy-os-followups.md): the launcher's
+# self-update swap (kodacy.new), the kill combo for a stuck game, signatures.
+
+D=/userdata/kodacy
+LOVE=/usr/bin/love
+LAUNCHER=/usr/share/kodacy/kodacy.love
+
+mkdir -p "$D/saves/_kodacy"
+: > "$D/log.txt"
+exec >> "$D/log.txt" 2>&1
+echo "kodacy-supervisor: $(date) launcher=$(cat /usr/share/kodacy/kodacy.version 2>/dev/null) oneshot=${KODACY_ONESHOT:-0}"
+
+# Where SDL draws: as a Wayland client while a compositor runs (Phase 5: the
+# port is started from ES under labwc), straight to KMS/DRM otherwise.
+if [ -z "$WAYLAND_DISPLAY" ] && command -v getLocalWaylandDisplay >/dev/null 2>&1; then
+  WAYLAND_DISPLAY=$(getLocalWaylandDisplay 2>/dev/null)
+fi
+if [ -n "$WAYLAND_DISPLAY" ]; then
+  export WAYLAND_DISPLAY
+  export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR:-/var/run}
+  export SDL_VIDEODRIVER=wayland
+else
+  export SDL_VIDEODRIVER=kmsdrm
+fi
+echo "kodacy-supervisor: SDL_VIDEODRIVER=$SDL_VIDEODRIVER"
+
+# Pad mapping is the next plan's job; until then a mapping file put on the
+# card over ssh is honoured, so a probe can be fixed without a rebuild.
+if [ -f /userdata/system/kodacy/gamecontrollerdb.txt ]; then
+  export SDL_GAMECONTROLLERCONFIG_FILE=/userdata/system/kodacy/gamecontrollerdb.txt
+fi
+
+# conf.lua of the launcher and of every game: fullscreen on the console.
+export KODACY_KONSOLA=1
+# The launcher keeps codes.txt, library/ and run.txt here.
+export KODACY_DIR="$D"
+export HOME=/userdata/system
+
+child=
+stop() {
+  echo "kodacy-supervisor: stopping"
+  [ -n "$child" ] && kill "$child" 2>/dev/null
+  exit 0
+}
+trap stop TERM INT
+
+run() {
+  # $1 = .love, $2 = save folder name; LÖVE writes to $XDG_DATA_HOME/love/…
+  mkdir -p "$D/saves/$2"
+  XDG_DATA_HOME="$D/saves/$2" XDG_CONFIG_HOME="$D/saves/$2" "$LOVE" "$1" &
+  child=$!
+  wait "$child"
+  rc=$?
+  child=
+  return $rc
+}
+
+while :; do
+  rm -f "$D/run.txt"
+  cd "$D" || exit 1
+  echo "kodacy-supervisor: launcher"
+  run "$LAUNCHER" _kodacy
+  echo "kodacy-supervisor: launcher ended code=$?"
+
+  if [ ! -f "$D/run.txt" ]; then
+    if [ "${KODACY_ONESHOT:-0}" = 1 ]; then
+      echo "kodacy-supervisor: bye"
+      exit 0
+    fi
+    sleep 1
+    continue
+  fi
+
+  game=$(sed -n 1p "$D/run.txt" | tr -d '\r')
+  id=$(sed -n 2p "$D/run.txt" | tr -cd 'A-Za-z0-9_-')
+  rm -f "$D/run.txt"
+  if [ ! -f "$game" ]; then
+    echo "kodacy-supervisor: missing game $game"
+    continue
+  fi
+  [ -n "$id" ] || id=game
+  cd "$(dirname "$game")" || continue
+  echo "kodacy-supervisor: game $id $game"
+  run "$game" "$id"
+  echo "kodacy-supervisor: game $id ended code=$?"
+done
