@@ -111,8 +111,11 @@ GIT_COMMIT := $(shell git -C $(PROJECT_DIR) rev-parse --short HEAD 2>/dev/null |
 
 # define build command based on whether we are building direct or inside a docker build container
 ifdef DIRECT_BUILD
+# MAKEFLAGS= so that this Makefile's --no-builtin-rules does not reach the
+# buildroot sub-make and the package Makefiles that rely on the built-in
+# .c -> .o rule (host-xxhash breaks otherwise); -j/-l come from MAKE_OPTS.
 define MAKE_BUILDROOT
-	make $(MAKE_OPTS) O=$(OUTPUT_DIR)/$(1) \
+	MAKEFLAGS= make $(MAKE_OPTS) O=$(OUTPUT_DIR)/$(1) \
 		BR2_EXTERNAL=$(PROJECT_DIR) \
 		BR2_DL_DIR=$(DL_DIR) \
 		BR2_CCACHE_DIR=$(CCACHE_DIR) \
