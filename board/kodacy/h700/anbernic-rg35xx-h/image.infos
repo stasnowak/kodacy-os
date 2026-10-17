@@ -1,0 +1,7 @@
+images:
+  - name:   anbernic-rg35xx-h
+    family: h700
+    hardwares:
+      - name:   RG35XX H (both panel DTBs on the card, original panel selected)
+        vendor: Anbernic
+        type:   handheld

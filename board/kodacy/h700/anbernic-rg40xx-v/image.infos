@@ -1,0 +1,7 @@
+images:
+  - name:   anbernic-rg40xx-v
+    family: h700
+    hardwares:
+      - name:   RG40XX V (both panel DTBs on the card, original panel selected)
+        vendor: Anbernic
+        type:   handheld
